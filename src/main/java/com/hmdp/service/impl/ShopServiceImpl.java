@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -43,26 +44,26 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     @Override
     public Result queryById(Long id) {
         // 缓存穿透
-//        Shop shop = cacheClient.queryWithPassThrough(
-//                RedisConstants.CACHE_SHOP_KEY,
-//                id,
-//                Shop.class,
-//                this::getById,
-//                RedisConstants.CACHE_SHOP_TTL,
-//                TimeUnit.MINUTES);
+        Shop shop = cacheClient.queryWithPassThrough(
+                RedisConstants.CACHE_SHOP_KEY,
+                id,
+                Shop.class,
+                this::getById,
+                RedisConstants.CACHE_SHOP_TTL,
+                TimeUnit.MINUTES);
 
         // 互斥锁解决缓存击穿
         //Shop shop = queryWithMutex(id);
 
         //逻辑过期解决缓存击穿
-        Shop shop = cacheClient
-                .queryWithLogicalExpire(
-                        RedisConstants.CACHE_SHOP_KEY,
-                        id,
-                        Shop.class
-                        ,this::getById,
-                        RedisConstants.CACHE_SHOP_TTL,
-                        TimeUnit.MINUTES);
+//        Shop shop = cacheClient
+//                .queryWithLogicalExpire(
+//                        RedisConstants.CACHE_SHOP_KEY,
+//                        id,
+//                        Shop.class
+//                        ,this::getById,
+//                        RedisConstants.CACHE_SHOP_TTL,
+//                        TimeUnit.MINUTES);
 
         if (shop == null) {
             return Result.fail("店铺不存在");
